@@ -4,8 +4,8 @@
 typedef struct
 {
     uint32_t stratum_difficulty;
-} SystemTaskModule;
+} stratumlinshidiff;
 
-void stratum_task(void *pvParameters);
+void stratum_task(void * pvParameters);
 
 #endif
