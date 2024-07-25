@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#define NVS_CONFIG_HOSTNAME "hostname"
 #define NVS_CONFIG_WIFI_SSID "wifissid"
 #define NVS_CONFIG_WIFI_PASS "wifipass"
 #define NVS_CONFIG_STRATUM_URL "stratumurl"
@@ -17,6 +18,18 @@
 #define NVS_CONFIG_FLIP_SCREEN "flipscreen"
 #define NVS_CONFIG_INVERT_SCREEN "invertscreen"
 #define NVS_CONFIG_ASIC_STARTFREQ "startfreq"
+
+
+#define NVS_CONFIG_STATIC_IP_OPEN "staticipopen"
+#define NVS_CONFIG_STATIC_IP "staticip"
+#define NVS_CONFIG_STATIC_NETMASK "staticnetmask"
+#define NVS_CONFIG_STATIC_GW "staticopengw"
+
+#define NVS_CONFIG_DNS_MAIN "dnsmain"
+#define NVS_CONFIG_DNS_BACKUP "dnsbackup"
+#define NVS_CONFIG_DNS_FALLBACK "dnsfallback"
+
+#define NVS_CONFIG_SWARM "swarmconfig"
 
 char * nvs_config_get_string(const char * key, const char * default_value);
 void nvs_config_set_string(const char * key, const char * default_value);

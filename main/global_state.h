@@ -23,7 +23,8 @@ typedef struct
 } AsicFunctions;
 
 typedef struct
-{
+{   
+    //main.c
     char * asic_model;
     AsicFunctions ASIC_functions;
     double asic_job_frequency_ms;
@@ -33,11 +34,13 @@ typedef struct
 
     bm1397Module BM1397_MODULE;
     SystemModule SYSTEM_MODULE;
+
+    
     AsicTaskModule ASIC_TASK_MODULE;
     PowerManagementModule POWER_MANAGEMENT_MODULE;
 
-    char * extranonce_str;
-    int extranonce_2_len;
+    char * extranonce1;
+    int extranonce2_size;
     int abandon_work;
 
     uint8_t * valid_jobs;
@@ -47,6 +50,17 @@ typedef struct
     uint32_t version_mask;
 
     int sock;
+
+    char * board_ip;
+    char * board_gw;
+
+    int64_t last_mining_notify_time;
+	
+    int staticipopen;
+    char * staticip;
+    char * staticnetmask;
+    char * staticopengw;
+
 
 } GlobalState;
 

@@ -69,7 +69,7 @@ static void _init_system(GlobalState * global_state, SystemModule * module)
 
     // Init I2C
     ESP_ERROR_CHECK(i2c_master_init());
-    ESP_LOGI(TAG, "I2C initialized successfully");
+    ESP_EARLY_LOGI(TAG, "I2C initialized successfully");
 
     // ADC_init();
 
@@ -87,9 +87,9 @@ static void _init_system(GlobalState * global_state, SystemModule * module)
 
     // oled
     if (!OLED_init()) {
-        ESP_LOGI(TAG, "OLED init failed!");
+        ESP_EARLY_LOGI(TAG, "OLED init failed!");
     } else {
-        ESP_LOGI(TAG, "OLED init success!");
+        ESP_EARLY_LOGI(TAG, "OLED init success!");
         // clear the oled screen
         OLED_fill(0);
     }
@@ -105,7 +105,7 @@ static void _update_hashrate(GlobalState * GLOBAL_STATE)
         return;
     }
 
-    float efficiency = GLOBAL_STATE->POWER_MANAGEMENT_MODULE.power / (module->current_hashrate / 1000.0);
+   // float efficiency = GLOBAL_STATE->POWER_MANAGEMENT_MODULE.power / (module->current_hashrate / 1000.0);
 
     OLED_clearLine(0);
     memset(module->oled_buf, 0, 20);
@@ -120,7 +120,7 @@ static void _update_shares(SystemModule * module)
     }
     OLED_clearLine(1);
     memset(module->oled_buf, 0, 20);
-    snprintf(module->oled_buf, 20, "A/R: %u/%u", module->shares_accepted, module->shares_rejected);
+    snprintf(module->oled_buf, 20, "A/R: %lu/%lu", module->shares_accepted, module->shares_rejected);
     OLED_writeString(0, 1, module->oled_buf);
 }
 
@@ -131,7 +131,8 @@ static void _update_best_diff(SystemModule * module)
     }
     OLED_clearLine(3);
     memset(module->oled_buf, 0, 20);
-    snprintf(module->oled_buf, 20, module->FOUND_BLOCK ? "! BLOCK FOUND !" : "BS: %s", module->best_share_string);
+    // snprintf(module->oled_buf, 20, module->FOUND_BLOCK ? "! BLOCK FOUND !" : "BS: %s", module->best_share_string);
+    snprintf(module->oled_buf, 20, "BS: %s", module->best_share_string);
     OLED_writeString(0, 3, module->oled_buf);
 }
 
@@ -145,31 +146,32 @@ static void _clear_display(void)
 
 static void _update_system_info(GlobalState * GLOBAL_STATE)
 {
-    SystemModule * module = &GLOBAL_STATE->SYSTEM_MODULE;
-    PowerManagementModule * power_management = &GLOBAL_STATE->POWER_MANAGEMENT_MODULE;
+    // SystemModule * module = &GLOBAL_STATE->SYSTEM_MODULE;
+    // PowerManagementModule * power_management = &GLOBAL_STATE->POWER_MANAGEMENT_MODULE;
 
-    if (OLED_status()) {
+    // if (OLED_status()) {
 
-        // memset(module->oled_buf, 0, 20);
-        // snprintf(module->oled_buf, 20, " Fan: %d RPM", power_management->fan_speed);
-        // OLED_writeString(0, 0, module->oled_buf);
+    //     // memset(module->oled_buf, 0, 20);
+    //     // snprintf(module->oled_buf, 20, " Fan: %d RPM", power_management->fan_speed);
+    //     // OLED_writeString(0, 0, module->oled_buf);
 
-        // memset(module->oled_buf, 0, 20);
-        // snprintf(module->oled_buf, 20, "Temp: %.1f C", power_management->chip_temp);
-        // OLED_writeString(0, 1, module->oled_buf);
+    //     // memset(module->oled_buf, 0, 20);
+    //     // snprintf(module->oled_buf, 20, "Temp: %.1f C", power_management->chip_temp);
+    //     // OLED_writeString(0, 1, module->oled_buf);
 
-        // memset(module->oled_buf, 0, 20);
-        // snprintf(module->oled_buf, 20, " Pwr: %.3f W", power_management->power);
-        // OLED_writeString(0, 2, module->oled_buf);
+    //     // memset(module->oled_buf, 0, 20);
+    //     // snprintf(module->oled_buf, 20, " Pwr: %.3f W", power_management->power);
+    //     // OLED_writeString(0, 2, module->oled_buf);
 
-        // memset(module->oled_buf, 0, 20);
-        // snprintf(module->oled_buf, 20, " %i mV: %i mA", (int) power_management->voltage, (int) power_management->current);
-        // OLED_writeString(0, 3, module->oled_buf);
-    }
+    //     // memset(module->oled_buf, 0, 20);
+    //     // snprintf(module->oled_buf, 20, " %i mV: %i mA", (int) power_management->voltage, (int) power_management->current);
+    //     // OLED_writeString(0, 3, module->oled_buf);
+    // }
 }
 
 static void _update_esp32_info(GlobalState * GLOBAL_STATE)
 {
+
     SystemModule * module = &GLOBAL_STATE->SYSTEM_MODULE;
     uint32_t free_heap_size = esp_get_free_heap_size();
 
@@ -178,22 +180,64 @@ static void _update_esp32_info(GlobalState * GLOBAL_STATE)
     if (OLED_status()) {
 
         memset(module->oled_buf, 0, 20);
-        snprintf(module->oled_buf, 20, "FH: %lu bytes", free_heap_size);
+        snprintf(module->oled_buf, 20, "FH: %lu byte", free_heap_size);
         OLED_writeString(0, 0, module->oled_buf);
 
         // memset(module->oled_buf, 0, 20);
         // snprintf(module->oled_buf, 20, "vCore: %u mV", vcore);
         // OLED_writeString(0, 1, module->oled_buf);
 
-        esp_netif_get_ip_info(netif, &ip_info);
-        char ip_address_str[IP4ADDR_STRLEN_MAX];
-        esp_ip4addr_ntoa(&ip_info.ip, ip_address_str, IP4ADDR_STRLEN_MAX);
+        // 创建一个默认的事件循环
+        // esp_event_loop_create_default();
 
-        memset(module->oled_buf, 0, 20);
-        snprintf(module->oled_buf, 20, "IP: %s", ip_address_str);
-        OLED_writeString(0, 1, module->oled_buf);
+        // 获取默认的网络接口
+        // esp_netif_t * netif = esp_netif_create_default_wifi_sta();
+        //netif = esp_netif_create_default_wifi_sta();
+        // 注册网络接口连接/断开的事件监听器
+        // ESP_ERROR_CHECK(esp_netif_attach(netif, ESP_NETIF_DRIVER_WIFI));
+        // esp_netif_ip_info_t ip_info;
+        // esp_netif_get_ip_info(netif, &ip_info);
 
-        OLED_writeString(0, 2, esp_app_get_description()->version);
+        // 打印IP地址
+        // ESP_LOGI(TAG, "IP Address: %s", ip4addr_ntoa((const ip4_addr_t *)&ip_info.ip));
+        // ESP_LOGI(TAG, "Subnet mask: %s", ip4addr_ntoa((const ip4_addr_t *)&ip_info.netmask));
+        // ESP_LOGI(TAG, "Gateway: %s", ip4addr_ntoa((const ip4_addr_t *)&ip_info.gw));
+
+        // memset(module->oled_buf, 0, 20);
+        // snprintf(module->oled_buf, 20, "IP: %s", (char *)&GLOBAL_STATE->board_ip);
+        // OLED_writeString(0, 1, module->oled_buf);
+        // ESP_LOGI(TAG, "IP Address: %s", ip4addr_ntoa((const ip4_addr_t *)&GLOBAL_STATE->board_ip));
+
+// if(esp_netif_get_ip_info(netif, &ip_info)==ESP_OK){
+//     char ip_address_str[IP4ADDR_STRLEN_MAX];
+//     esp_ip4addr_ntoa(&ip_info.ip, ip_address_str, IP4ADDR_STRLEN_MAX);
+
+//     ESP_LOGI(TAG, "IP Address: %s", ip4addr_ntoa((const ip4_addr_t *)&ip_info.ip));
+
+//     memset(module->oled_buf, 0, 20);
+//     snprintf(module->oled_buf, 20, "IP: %s", ip_address_str);
+//     OLED_writeString(0, 1, module->oled_buf);
+// }else{
+//     ESP_LOGE(TAG, "IP Address: UN");
+// }
+
+     memset(module->oled_buf, 0, 20);
+     snprintf(module->oled_buf, 20, "IP: %s", GLOBAL_STATE->board_ip);
+     OLED_writeString(0, 1, module->oled_buf);
+
+
+     memset(module->oled_buf, 0, 20);
+     snprintf(module->oled_buf, 20, "GW: %s", GLOBAL_STATE->board_gw);
+     OLED_writeString(0, 2, module->oled_buf);
+
+
+        // char ip_address_gwstr[IP4ADDR_STRLEN_MAX];
+        // esp_ip4addr_ntoa(&ip_info.gw, ip_address_gwstr, IP4ADDR_STRLEN_MAX);
+        // memset(module->oled_buf, 0, 20);
+        // snprintf(module->oled_buf, 20, "GW: %s", ip_address_gwstr);
+        // OLED_writeString(0, 2, module->oled_buf);
+
+        // OLED_writeString(0, 2, esp_app_get_description()->version);
     }
 }
 
@@ -270,19 +314,40 @@ static double _calculate_network_difficulty(uint32_t nBits)
     return difficulty;
 }
 
-static void _check_for_best_diff(SystemModule * module, double diff, uint32_t nbits)
+void SYSTEM_check_for_best_diff(SystemModule * module, double diff, uint32_t nbits)
 {
-    if (diff < module->best_nonce_diff) {
-        return;
+    // if (diff < module->best_nonce_diff) {
+    //     return;
+    // }
+    // module->best_nonce_diff = diff;
+    // // make the best_nonce_diff into a string
+    // _suffix_string((uint64_t) diff, module->best_share_string, DIFF_STRING_SIZE, 0);
+    // double network_diff = _calculate_network_difficulty(nbits);
+    // // module->Network_Difficulty = network_diff;
+    // if (diff > network_diff) {
+    //     module->FOUND_BLOCK = true;
+    //     ESP_EARLY_LOGI(TAG, "FOUND BLOCK! %f > %f", diff, network_diff);
+    // }
+    // ESP_EARLY_LOGI(TAG, "Network diff: %f", network_diff);
+
+    if (diff > module->best_nonce_diff) {
+        module->best_nonce_diff = diff;
+        _suffix_string((uint64_t) diff, module->best_share_string, DIFF_STRING_SIZE, 0);
     }
-    module->best_nonce_diff = diff;
-    // make the best_nonce_diff into a string
-    _suffix_string((uint64_t) diff, module->best_share_string, DIFF_STRING_SIZE, 0);
-    double network_diff = _calculate_network_difficulty(nbits);
-    if (diff > network_diff) {
+    
+    
+
+    if (diff > module->Network_Difficulty) {
         module->FOUND_BLOCK = true;
-        ESP_LOGI(TAG, "FOUND BLOCK!!!!!!!!!!!!!!!!!!!!!! %f > %f", diff, network_diff);
+        ESP_LOGI(TAG, "FOUND BLOCK! %f > %f", diff, module->Network_Difficulty);
     }
+}
+
+void SYSTEM_update_net_diff(SystemModule * module, uint32_t nbits)
+{
+
+    double network_diff = _calculate_network_difficulty(nbits);
+    module->Network_Difficulty = network_diff;
     ESP_LOGI(TAG, "Network diff: %f", network_diff);
 }
 
@@ -373,34 +438,35 @@ void SYSTEM_task(void * pvParameters)
         }
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
+    if (OLED_status()) {
+        while (1) {
+            _clear_display();
+            module->screen_page = 0;
+            _update_system_performance(GLOBAL_STATE);
+            vTaskDelay(40000 / portTICK_PERIOD_MS);
 
-    while (1) {
-        _clear_display();
-        module->screen_page = 0;
-        _update_system_performance(GLOBAL_STATE);
-        vTaskDelay(40000 / portTICK_PERIOD_MS);
+            // _clear_display();
+            // module->screen_page = 1;
+            // _update_system_info(GLOBAL_STATE);
+            // vTaskDelay(10000 / portTICK_PERIOD_MS);
 
-        // _clear_display();
-        // module->screen_page = 1;
-        // _update_system_info(GLOBAL_STATE);
-        // vTaskDelay(10000 / portTICK_PERIOD_MS);
-
-        _clear_display();
-        module->screen_page = 1;
-        _update_esp32_info(GLOBAL_STATE);
-        vTaskDelay(10000 / portTICK_PERIOD_MS);
+            _clear_display();
+            module->screen_page = 1;
+            _update_esp32_info(GLOBAL_STATE);
+            vTaskDelay(10000 / portTICK_PERIOD_MS);
+        }
     }
 }
 
 void SYSTEM_notify_accepted_share(SystemModule * module)
 {
     module->shares_accepted++;
-    _update_shares(module);
+    //_update_shares(module);
 }
 void SYSTEM_notify_rejected_share(SystemModule * module)
 {
     module->shares_rejected++;
-    _update_shares(module);
+   // _update_shares(module);
 }
 
 void SYSTEM_notify_mining_started(SystemModule * module)
@@ -414,7 +480,7 @@ void SYSTEM_notify_new_ntime(SystemModule * module, uint32_t ntime)
     if (module->lastClockSync + (60 * 60) > ntime) {
         return;
     }
-    ESP_LOGI(TAG, "Syncing clock");
+    ESP_EARLY_LOGI(TAG, "Syncing clock");
     module->lastClockSync = ntime;
     struct timeval tv;
     tv.tv_sec = ntime;
@@ -422,7 +488,7 @@ void SYSTEM_notify_new_ntime(SystemModule * module, uint32_t ntime)
     settimeofday(&tv, NULL);
 }
 
-void SYSTEM_notify_found_nonce(SystemModule * module, double pool_diff, double found_diff, uint32_t nbits)
+void SYSTEM_notify_found_nonce(SystemModule * module, double pool_diff, double found_diff)
 {
     // Calculate the time difference in seconds with sub-second precision
 
@@ -447,9 +513,14 @@ void SYSTEM_notify_found_nonce(SystemModule * module, double pool_diff, double f
         sum += module->historical_hashrate[i];
     }
 
-    double duration = (double) (esp_timer_get_time() - module->duration_start) / 1000000;
+    // double duration = (double) (esp_timer_get_time() - module->duration_start) / 1000000;
+    // double rolling_rate = (sum * 4294967296) / (duration * 1000000000);
 
-    double rolling_rate = (sum * 4294967296) / (duration * 1000000000);
+
+    double duration = (double) (esp_timer_get_time() - module->duration_start) *1000;
+    double rolling_rate = (sum * 4294967296) / duration;
+
+
     if (module->historical_hashrate_init < HISTORY_LENGTH) {
         module->current_hashrate = rolling_rate;
     } else {
@@ -457,10 +528,4 @@ void SYSTEM_notify_found_nonce(SystemModule * module, double pool_diff, double f
         module->current_hashrate = ((module->current_hashrate * 9) + rolling_rate) / 10;
     }
 
-    _update_hashrate(module);
-
-    // logArrayContents(historical_hashrate, HISTORY_LENGTH);
-    // logArrayContents(historical_hashrate_time_stamps, HISTORY_LENGTH);
-
-    _check_for_best_diff(module, found_diff, nbits);
 }
