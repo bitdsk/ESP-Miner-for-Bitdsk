@@ -137,7 +137,7 @@ void stratum_task(void * pvParameters)
             }
             ESP_LOGI(TAG, "Socket created, connecting to %s:%d", host_ip, port);
             retry_attempts = 0;
-            int err = connect(GLOBAL_STATE->sock, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr_in6));
+            int err = connect(GLOBAL_STATE->sock, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr_in));
             if (err != 0)
             {
                 ESP_LOGE(TAG, "Socket unable to connect to %s:%d (errno %d)", stratum_url, port, errno);
